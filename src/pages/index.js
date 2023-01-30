@@ -32,7 +32,7 @@ export default function Home() {
 
   const startApplePaySession = () => {
     console.log("-----Apple pay clicked------");
-    const { ApplePayPaymentRequest: request } = constructPaymentRequest(order);
+    const { ApplePayPaymentRequest: request } = constructPaymentRequest();
     console.log("Request data created: ", request);
     const session = new ApplePaySession(getVersionNumber(), request);
     try {
