@@ -131,7 +131,7 @@ export default function Home() {
       <main className={styles.main}>
         {
           apple && (
-            <apple-pay-button onClick={() => startApplePaySession()} buttonstyle="black" type="plain" locale="en"></apple-pay-button>
+            <button onClick={() => startApplePaySession()} buttonstyle="black" type="plain" locale="en"></button>
           )
         }
 
