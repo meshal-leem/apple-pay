@@ -18,7 +18,7 @@ export default function Home() {
       merchantCapabilities: ["support3DS"],
       total: { label: "Leem", amount: "10.00" }
     })
-    applePaySession.begin()
+    applePaySession.begin();
     applePaySession.onvalidatemerchant = (event) => {
       var theValidationURL = event.validationURL;
       validateTheSession(theValidationURL, (merchantSession) => {
