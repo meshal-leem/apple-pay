@@ -9,6 +9,101 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [apple, setApple] = useState(false);
 
+  const startApplePaySession = () => {
+    console.log("-----Apple pay clicked------");
+    const { ApplePayPaymentRequest: request } = constructPaymentRequest(order);
+    console.log("Request data created: ", request);
+    const session = new ApplePaySession(getVersionNumber(), request);
+    try {
+      // Merhant validated
+      session.onvalidatemerchant = (event) => {
+        console.log("-------Event onvalidatemerchant--------");
+        const { validationURL } = event;
+        console.log("validationURL -", validationURL);
+        paymentService.createApplePayMerhchantSession(validationURL).then((response) => {
+          console.log("session created. Session data: ", response);
+          if (response && response.success) {
+            const { data } = response;
+            if (data) {
+              console.log("Calling completeMerchantValidation: ", data);
+              session.completeMerchantValidation(data);
+              console.log("-------Completed completeMerchantValidation call---------");
+            } else {
+              console.log("-------Failed completeMerchantValidation----------");
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+              setPaymentStatus("Failed");
+            }
+          } else if (response && response.errorCode === "CartError") {
+            session.completePayment(ApplePaySession.STATUS_FAILURE);
+            setPaymentStatus("Failed");
+            router.push("/cart");
+          } else {
+            console.log("-------Failed completeMerchantValidation----------");
+            session.completePayment(ApplePaySession.STATUS_FAILURE);
+            setPaymentStatus("Failed");
+          }
+        });
+      };
+
+      session.onshippingcontactselected = function onshippingcontactselected(event) {
+        console.log("-------Inside onshippingcontactselected()-------", event);
+        // session.completeShippingContactSelection(update);
+      };
+
+      session.onshippingmethodselected = function onshippingmethodselected(event) {
+        console.log("Inside onshippingmethodselected()", event);
+        // session.completeShippingMethodSelection(update);
+      };
+
+      session.onpaymentmethodselected = function onpaymentmethodselected(event) {
+        const update = {
+          newTotal: request.total,
+        };
+        session.completePaymentMethodSelection(update);
+        console.log("--------Inside onpaymentmethodselected()---------", event);
+      };
+
+      session.oncancel = function oncancel(event) {
+        console.log("--------Inside oncancel()---------");
+        console.log("\nPayment cancelled by WebKit: ", event);
+      };
+
+      // Payment authorized
+      session.onpaymentauthorized = (event) => {
+        console.log("------Event onpaymentauthorized-----------");
+        const { payment: { token: { paymentData } } } = event;
+        const encryptedData = btoa(JSON.stringify(paymentData));
+        console.log("payment data: ", paymentData);
+        console.log("encryptedData: ", encryptedData);
+        paymentService.recordApplePayPayment(encryptedData).then((response) => {
+          console.log("After cybersource call : ", response);
+          if (response && response.success) {
+            const { data } = response;
+            if (data && data.success && data.status === "Accepted") {
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+              // Redirecting to order confirmation page
+              router.push({
+                pathname: "/order-confirmation",
+                query: { oid: data.orderId },
+              });
+            } else {
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+              setPaymentStatus("Declined");
+            }
+          } else {
+            session.completePayment(ApplePaySession.STATUS_FAILURE);
+            setPaymentStatus("Failed");
+          }
+        });
+      };
+    } catch (err) {
+      console.log("Error occurred during apple payment - ", err);
+      setPaymentStatus("Failed");
+    }
+    console.log("Starting apple pay session");
+    session.begin();
+  };
+
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
     if (window.ApplePaySession) {
@@ -36,7 +131,7 @@ export default function Home() {
       <main className={styles.main}>
         {
           apple && (
-            <apple-pay-button buttonstyle="black" type="plain" locale="en"></apple-pay-button>
+            <apple-pay-button onClick={() => startApplePaySession()} buttonstyle="black" type="plain" locale="en"></apple-pay-button>
           )
         }
 
