@@ -9,6 +9,27 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [apple, setApple] = useState(false);
 
+  const constructPaymentRequest = () => {
+    const paymentRequest = {
+      countryCode: "AE",
+      currencyCode: "AED",
+      total: "23",
+      merchantCapabilities: [
+        "supports3DS",
+      ],
+      supportedNetworks: [
+        "visa",
+        "masterCard",
+        "amex",
+        "discover",
+      ],
+    };
+    return {
+      merchantId: "merchant.com.dev.leem",
+      ApplePayPaymentRequest: paymentRequest,
+    };
+  };
+
   const startApplePaySession = () => {
     console.log("-----Apple pay clicked------");
     const { ApplePayPaymentRequest: request } = constructPaymentRequest(order);
