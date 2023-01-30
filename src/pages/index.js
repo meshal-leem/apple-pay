@@ -30,6 +30,36 @@ export default function Home() {
     };
   };
 
+  const getVersionNumber = () => {
+    if (ApplePaySession.supportsVersion(9)) {
+      return 9;
+    }
+    if (ApplePaySession.supportsVersion(8)) {
+      return 8;
+    }
+    if (ApplePaySession.supportsVersion(7)) {
+      return 7;
+    }
+    if (ApplePaySession.supportsVersion(6)) {
+      return 6;
+    }
+    if (ApplePaySession.supportsVersion(5)) {
+      return 5;
+    }
+    if (ApplePaySession.supportsVersion(4)) {
+      return 4;
+    }
+    if (ApplePaySession.supportsVersion(3)) {
+      return 3;
+    }
+    if (ApplePaySession.supportsVersion(2)) {
+      return 2;
+    }
+    if (ApplePaySession.supportsVersion(1)) {
+      return 1;
+    }
+  };
+
   const startApplePaySession = () => {
     console.log("-----Apple pay clicked------");
     const { ApplePayPaymentRequest: request } = constructPaymentRequest();
