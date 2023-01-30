@@ -19,7 +19,16 @@ export default function Home() {
       total: { label: "Leem", amount: "10.00" }
     })
     applePaySession.begin()
+    applePaySession.onvalidatemerchant = (event) => {
+      var theValidationURL = event.validationURL;
+      validateTheSession(theValidationURL, (merchantSession) => {
+        applePaySession.completeMerchantValidation(merchantSession);
+
+      })
+
+    }
   }
+
 
   const MECHAT_ID = "merchant.com.dev.leem";
   const BACKEND_URL_VALIDATE_SESSION = "";
