@@ -19,14 +19,7 @@ export default function Home() {
       total: { label: "Leem", amount: "10.00" }
     })
     applePaySession.begin();
-    applePaySession.onvalidatemerchant = (event) => {
-      var theValidationURL = event.validationURL;
-      validateTheSession(theValidationURL, (merchantSession) => {
-        applePaySession.completeMerchantValidation(merchantSession);
-
-      })
-
-    }
+    applePaySession.onvalidatemerchant = function (event) { }
   }
 
 
