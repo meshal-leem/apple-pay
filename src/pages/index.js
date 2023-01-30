@@ -11,16 +11,34 @@ export default function Home() {
   const [apple, setApple] = useState(false)
 
   const pay = () => {
-    var applePaySession = new ApplePaySession(6, {
-      countryCode: "AE",
-      currencyCode: "AED",
-      supportNetworks: ["visa", "master", "amex", "discover"],
-      merchantCapabilities: ["support3DS"],
-      total: { label: "Leem", amount: "10.00" }
-    })
-    applePaySession.begin();
-    applePaySession.onvalidatemerchant = function (event) { }
+    var request = {
+      countryCode: 'US',
+      currencyCode: 'USD',
+      supportedNetworks: ['visa', 'masterCard'],
+      merchantCapabilities: ['supports3DS'],
+      total: { label: 'Your Label', amount: '10.00' },
+    }
+
+    var session = new ApplePaySession(1, request);
+
+    session.begin()
+    try {
+      session.onvalidatemerchant = (event) => {
+        var validationURL = event.validationURL;
+        console.log(validationURL)
+        getApplePaySession(validationURL).then(function (response) {
+          session.completeMerchantValidation(response);
+        });
+      }
+    } catch (err) {
+      alert("Error message:::" + err.message);
+    }
   }
+
+  function getApplePaySession(validationURL) {
+    return null;
+  }
+
 
 
   const MECHAT_ID = "merchant.com.dev.leem";
